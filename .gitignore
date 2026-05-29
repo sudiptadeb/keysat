@@ -1,0 +1,36 @@
+# Compiled binaries
+/keysatd
+/keysat-webtest
+/keysatd-webtest
+*.test
+*.out
+
+# Captured data & runtime state — NEVER commit (this is keystroke data)
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+*.log
+current_dir
+hook.sock
+.keysat/
+
+# macOS app bundle build target / artifacts
+KeySat.app/
+dist/
+build/
+
+# Local tooling scaffolding
+.keysat-overhaul.workflow.js
+
+# macOS / editor cruft
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Local/generated artifacts with machine-specific paths
+Makefile.local
+com.keysat.daemon.plist
+/build/

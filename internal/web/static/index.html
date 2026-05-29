@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>keysat</title>
+    <script>
+      // Apply saved theme/width before paint to avoid a flash.
+      (function () {
+        try {
+          document.documentElement.setAttribute('data-theme', localStorage.getItem('keysat.theme') || 'dark');
+          document.documentElement.setAttribute('data-width', localStorage.getItem('keysat.width') || 'capped');
+        } catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
+      })();
+    </script>
+    <link rel="stylesheet" href="/static/fonts.css">
+    <link rel="stylesheet" href="/static/tokens.css">
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/chart.min.js"></script>
+    <script defer src="/static/alpine.min.js"></script>
+</head>
+<body x-data="keysat()" x-init="init()">
+    <svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true"><symbol id="i-overview" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1" /><rect width="7" height="5" x="14" y="3" rx="1" /><rect width="7" height="9" x="14" y="12" rx="1" /><rect width="7" height="5" x="3" y="16" rx="1" /></symbol><symbol id="i-apps" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1" /><rect width="7" height="7" x="14" y="3" rx="1" /><rect width="7" height="7" x="14" y="14" rx="1" /><rect width="7" height="7" x="3" y="14" rx="1" /></symbol><symbol id="i-domains" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" /><path d="M2 12h20" /></symbol><symbol id="i-dirs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" /></symbol><symbol id="i-words" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16" /><path d="M4 7V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2" /><path d="M9 20h6" /></symbol><symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-4.34-4.34" /><circle cx="11" cy="11" r="8" /></symbol><symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" /></symbol><symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401" /></symbol><symbol id="i-maximize" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6" /><path d="m21 3-7 7" /><path d="m3 21 7-7" /><path d="M9 21H3v-6" /></symbol><symbol id="i-minimize" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m14 10 7-7" /><path d="M20 10h-6V4" /><path d="m3 21 7-7" /><path d="M4 14h6v6" /></symbol><symbol id="i-prev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6" /></symbol><symbol id="i-next" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></symbol><symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /><path d="M12 7v5l4 2" /></symbol></svg>
+
+    <nav>
+        <div class="nav-brand"><span class="brand-mark">k</span> keysat</div>
+        <div class="nav-links">
+            <a href="#/" :class="page==='dashboard' && 'active'"><svg class="icon"><use href="#i-overview"/></svg><span class="lbl">Overview</span></a>
+            <a href="#/apps" :class="page==='apps' && 'active'"><svg class="icon"><use href="#i-apps"/></svg><span class="lbl">Apps</span></a>
+            <a href="#/domains" :class="page==='domains' && 'active'"><svg class="icon"><use href="#i-domains"/></svg><span class="lbl">Domains</span></a>
+            <a href="#/dirs" :class="page==='dirs' && 'active'"><svg class="icon"><use href="#i-dirs"/></svg><span class="lbl">Directories</span></a>
+            <a href="#/words" :class="page==='words' && 'active'"><svg class="icon"><use href="#i-words"/></svg><span class="lbl">Words</span></a>
+            <a href="#/search" :class="page==='search' && 'active'"><svg class="icon"><use href="#i-search"/></svg><span class="lbl">Search</span></a>
+        </div>
+        <div class="nav-spacer"></div>
+        <button type="button" class="icon-btn" @click="toggleWidth()" :title="widthMode==='capped' ? 'Use full width' : 'Use capped width'" x-cloak>
+            <svg class="icon"><use :href="widthMode==='capped' ? '#i-maximize' : '#i-minimize'"/></svg>
+        </button>
+        <button type="button" class="icon-btn" @click="toggleTheme()" :title="theme==='dark' ? 'Switch to light' : 'Switch to dark'" x-cloak>
+            <svg class="icon"><use :href="theme==='dark' ? '#i-sun' : '#i-moon'"/></svg>
+        </button>
+    </nav>
+
+    <main>
+        <!-- Range toolbar (global, lives outside every page section) -->
+        <div class="range-bar" x-cloak>
+            <div class="range-presets">
+                <button type="button" class="range-btn" :class="range.preset==='today' && 'active'" @click="setPreset('today')">Today</button>
+                <button type="button" class="range-btn" :class="range.preset==='7d' && 'active'" @click="setPreset('7d')">7d</button>
+                <button type="button" class="range-btn" :class="range.preset==='30d' && 'active'" @click="setPreset('30d')">30d</button>
+                <button type="button" class="range-btn" :class="range.preset==='90d' && 'active'" @click="setPreset('90d')">90d</button>
+                <button type="button" class="range-btn" :class="range.preset==='all' && 'active'" @click="setPreset('all')">All</button>
+                <button type="button" class="range-btn" :class="range.preset==='custom' && 'active'" @click="setPreset('custom')">Custom</button>
+            </div>
+
+            <div class="range-nav" x-show="range.preset!=='all'">
+                <button type="button" class="range-arrow" @click="shiftDay(-1)" title="Previous window"><svg class="icon"><use href="#i-prev"/></svg></button>
+                <button type="button" class="range-arrow" @click="shiftDay(1)" :disabled="atNow()" title="Next window"><svg class="icon"><use href="#i-next"/></svg></button>
+            </div>
+
+            <div class="range-label"><svg class="icon"><use href="#i-clock"/></svg><span x-text="rangeLabel()"></span></div>
+        </div>
+
+        <!-- Custom date inputs (revealed for custom preset) -->
+        <div class="range-custom" x-show="range.preset==='custom'" x-cloak>
+            <label>Start <input type="date" x-model="customStart" class="date-input"></label>
+            <label>End <input type="date" x-model="customEnd" class="date-input"></label>
+            <button type="button" class="range-btn" @click="applyCustom()">Apply</button>
+        </div>
+
+        <!-- Dashboard -->
+        <section x-show="page==='dashboard'" x-cloak>
+            <h1>Overview <span x-text="rangeLabel()"></span></h1>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="label">keystrokes</div>
+                    <div class="value" x-text="fmt(today.keystrokes)"></div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">words</div>
+                    <div class="value" x-text="fmt(today.words)"></div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">unique</div>
+                    <div class="value" x-text="fmt(today.unique_words)"></div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">active min</div>
+                    <div class="value" x-text="today.active_minutes || 0"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Volume — <span x-text="rangeLabel()"></span></h2>
+                <div class="chart-container">
+                    <canvas id="volumeChart"></canvas>
+                </div>
+            </div>
+
+            <div class="two-col">
+                <div class="section">
+                    <h2>Top apps</h2>
+                    <table>
+                        <thead><tr><th>app</th><th class="num">words</th></tr></thead>
+                        <tbody>
+                            <template x-for="a in topApps" :key="a.name">
+                                <tr>
+                                    <td><span x-text="a.name"></span> <span class="tag" x-text="a.type"></span></td>
+                                    <td class="num" x-text="fmt(a.words)"></td>
+                                </tr>
+                            </template>
+                            <tr x-show="!topApps.length"><td colspan="2" class="empty-state">No data yet</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="section">
+                    <h2>Top domains</h2>
+                    <table>
+                        <thead><tr><th>domain</th><th class="num">words</th></tr></thead>
+                        <tbody>
+                            <template x-for="d in topDomains" :key="d.domain">
+                                <tr>
+                                    <td x-text="d.domain"></td>
+                                    <td class="num" x-text="fmt(d.words)"></td>
+                                </tr>
+                            </template>
+                            <tr x-show="!topDomains.length"><td colspan="2" class="empty-state">No data yet</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Apps -->
+        <section x-show="page==='apps'" x-cloak>
+            <h1>Applications <span x-text="rangeLabel()"></span></h1>
+            <table>
+                <thead><tr><th>app</th><th>type</th><th class="num">words</th><th style="width:200px"></th></tr></thead>
+                <tbody>
+                    <template x-for="a in apps" :key="a.name">
+                        <tr>
+                            <td x-text="a.name"></td>
+                            <td><span class="tag" x-text="a.type"></span></td>
+                            <td class="num" x-text="fmt(a.words)"></td>
+                            <td><div class="bar"><div class="bar-fill" :style="`width:${pct(a.words, maxOf(apps,'words'))}%`"></div></div></td>
+                        </tr>
+                    </template>
+                    <tr x-show="!apps.length"><td colspan="4" class="empty-state">No data yet</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Domains -->
+        <section x-show="page==='domains'" x-cloak>
+            <h1>Domains <span x-text="rangeLabel()"></span></h1>
+            <table>
+                <thead><tr><th>domain</th><th class="num">words</th><th style="width:200px"></th></tr></thead>
+                <tbody>
+                    <template x-for="d in domains" :key="d.domain">
+                        <tr>
+                            <td x-text="d.domain"></td>
+                            <td class="num" x-text="fmt(d.words)"></td>
+                            <td><div class="bar"><div class="bar-fill" :style="`width:${pct(d.words, maxOf(domains,'words'))}%`"></div></div></td>
+                        </tr>
+                    </template>
+                    <tr x-show="!domains.length"><td colspan="3" class="empty-state">No data yet</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Directories -->
+        <section x-show="page==='dirs'" x-cloak>
+            <h1>Directories <span x-text="rangeLabel()"></span></h1>
+            <table>
+                <thead><tr><th>path</th><th class="num">words</th><th style="width:200px"></th></tr></thead>
+                <tbody>
+                    <template x-for="d in dirs" :key="d.path">
+                        <tr>
+                            <td x-text="d.path"></td>
+                            <td class="num" x-text="fmt(d.words)"></td>
+                            <td><div class="bar"><div class="bar-fill" :style="`width:${pct(d.words, maxOf(dirs,'words'))}%`"></div></div></td>
+                        </tr>
+                    </template>
+                    <tr x-show="!dirs.length"><td colspan="3" class="empty-state">No data yet</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Words -->
+        <section x-show="page==='words'" x-cloak>
+            <h1>Vocabulary <span x-text="rangeLabel()"></span></h1>
+            <div class="section">
+                <h2>Growth</h2>
+                <div class="chart-container">
+                    <canvas id="vocabChart"></canvas>
+                </div>
+            </div>
+            <div class="section">
+                <h2>Most typed</h2>
+                <table>
+                    <thead><tr><th>word</th><th class="num">count</th><th style="width:200px"></th></tr></thead>
+                    <tbody>
+                        <template x-for="w in words" :key="w.word">
+                            <tr>
+                                <td x-text="w.word"></td>
+                                <td class="num" x-text="fmt(w.count)"></td>
+                                <td><div class="bar"><div class="bar-fill" :style="`width:${pct(w.count, maxOf(words,'count'))}%`"></div></div></td>
+                            </tr>
+                        </template>
+                        <tr x-show="!words.length"><td colspan="3" class="empty-state">No data yet</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Search -->
+        <section x-show="page==='search'" x-cloak>
+            <h1>Search <span x-text="rangeLabel()"></span></h1>
+            <form @submit.prevent="search()">
+                <div class="search-controls">
+                    <div class="search-box">
+                        <svg class="icon"><use href="#i-search"/></svg>
+                        <input type="text" x-model="searchQ" @input.debounce.300ms="search()" placeholder="Search your typing history…" class="search-input" autofocus>
+                    </div>
+                    <input type="text" x-model="searchApp" @input.debounce.300ms="search()" placeholder="Filter app…" class="search-filter">
+                    <input type="text" x-model="searchDomain" @input.debounce.300ms="search()" placeholder="Filter domain…" class="search-filter">
+                </div>
+                <div class="search-hint">Searching within <span x-text="rangeLabel()"></span> — change the range above to widen or go back in time.</div>
+            </form>
+
+            <div class="search-meta">
+                <span x-show="searchLoading" class="search-loading">Searching…</span>
+                <span x-show="!searchLoading && searchQ.trim()" x-text="fmt(searchTotal) + ' results'"></span>
+            </div>
+
+            <div x-show="searchResults.length" class="section">
+                <table>
+                    <thead><tr><th>word</th><th>app</th><th>domain</th><th>time</th></tr></thead>
+                    <tbody>
+                        <template x-for="(r, i) in searchResults" :key="r.session_id + '-' + r.typed_at + '-' + r.word + '-' + i">
+                            <tr>
+                                <td x-text="r.word"></td>
+                                <td x-text="r.app_name"></td>
+                                <td x-text="r.domain || '—'"></td>
+                                <td x-text="fmtTime(r.typed_at)"></td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+                <div class="search-more" x-show="searchResults.length < searchTotal">
+                    <button type="button" class="range-btn" @click="loadMore()" :disabled="searchLoading">Load more</button>
+                </div>
+            </div>
+
+            <div x-show="!searchLoading && searchQ.trim() && !searchResults.length" class="empty-state">No results</div>
+        </section>
+    </main>
+
+    <script>
+    const get = url => fetch(url).then(r => r.ok ? r.json() : []).catch(() => []);
+
+    function keysat() {
+        return {
+            page: 'dashboard',
+            today: {},
+            topApps: [],
+            topDomains: [],
+            apps: [],
+            domains: [],
+            dirs: [],
+            words: [],
+
+            // --- ui chrome (persisted) ---
+            theme: 'dark',
+            widthMode: 'capped',
+
+            // --- global range state (persisted, survives nav + reload) ---
+            range: { preset: '7d', since: 0, until: 0, bucket: 3600 },
+            customStart: '',
+            customEnd: '',
+
+            // --- search state ---
+            searchQ: '',
+            searchApp: '',
+            searchDomain: '',
+            searchResults: [],
+            searchTotal: 0,
+            searchOffset: 0,
+            searchLoading: false,
+            _searchSeq: 0,
+
+            _charts: {},
+            SEARCH_LIMIT: 50,
+
+            init() {
+                this.restoreUI();
+                this.restoreRange();
+                const route = () => {
+                    const h = location.hash.replace('#/', '').replace('#', '');
+                    this.page = h || 'dashboard';
+                };
+                window.addEventListener('hashchange', route);
+                route();
+                // hash nav: range survives in-memory; just (re)load the new page's data.
+                this.$watch('page', () => this.load());
+                this.load();
+            },
+
+            // ---- theme + width toggles ----
+            restoreUI() {
+                try { this.theme = localStorage.getItem('keysat.theme') || 'dark'; } catch (e) {}
+                try { this.widthMode = localStorage.getItem('keysat.width') || 'capped'; } catch (e) {}
+                document.documentElement.setAttribute('data-theme', this.theme);
+                document.documentElement.setAttribute('data-width', this.widthMode);
+            },
+            toggleTheme() {
+                this.theme = this.theme === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', this.theme);
+                try { localStorage.setItem('keysat.theme', this.theme); } catch (e) {}
+                this.load(); // re-render charts with theme-aware colors
+            },
+            toggleWidth() {
+                this.widthMode = this.widthMode === 'capped' ? 'fluid' : 'capped';
+                document.documentElement.setAttribute('data-width', this.widthMode);
+                try { localStorage.setItem('keysat.width', this.widthMode); } catch (e) {}
+            },
+
+            // ---- range computation ----
+            now() { return Math.floor(Date.now() / 1000); },
+
+            computeBucket(since, until) {
+                return (until - since) <= 2 * 86400 ? 3600 : 86400;
+            },
+
+            // Recompute since/until/bucket for a preset, persist, then reload current page.
+            setPreset(preset) {
+                const now = this.now();
+                let since = now, until = now;
+                switch (preset) {
+                    case 'today': {
+                        const d = new Date();
+                        d.setHours(0, 0, 0, 0);
+                        since = Math.floor(d.getTime() / 1000);
+                        until = now;
+                        break;
+                    }
+                    case '7d':  since = now - 7 * 86400;  until = now; break;
+                    case '30d': since = now - 30 * 86400; until = now; break;
+                    case '90d': since = now - 90 * 86400; until = now; break;
+                    case 'all': since = 0;                until = now; break;
+                    case 'custom':
+                        // seed the date inputs from the current window; don't apply yet.
+                        this.range.preset = 'custom';
+                        if (!this.customStart) this.customStart = this.toDateInput(this.range.since);
+                        if (!this.customEnd)   this.customEnd   = this.toDateInput(this.range.until);
+                        this.persistRange();
+                        return;
+                }
+                this.range = { preset, since, until, bucket: this.computeBucket(since, until) };
+                this.persistRange();
+                this.load();
+            },
+
+            // Custom: two date inputs -> local-midnight start, end-inclusive (end+1 day midnight).
+            applyCustom() {
+                if (!this.customStart || !this.customEnd) return;
+                const since = this.dateInputToUnix(this.customStart);          // local midnight of start
+                let until = this.dateInputToUnix(this.customEnd) + 86400;       // inclusive end day
+                const now = this.now();
+                if (until > now) until = now;
+                if (since >= until) return;
+                this.range = { preset: 'custom', since, until, bucket: this.computeBucket(since, until) };
+                this.persistRange();
+                this.load();
+            },
+
+            // Day-nav: shift the window by its own duration. Clamp so until never exceeds now.
+            shiftDay(dir) {
+                if (this.range.preset === 'all') return;
+                const dur = this.range.until - this.range.since;
+                if (dur <= 0) return;
+                let since = this.range.since + dir * dur;
+                let until = this.range.until + dir * dur;
+                const now = this.now();
+                if (until > now) { const overshoot = until - now; until -= overshoot; since -= overshoot; }
+                if (since < 0) since = 0;
+                this.range = { preset: this.range.preset, since, until, bucket: this.computeBucket(since, until) };
+                this.persistRange();
+                this.load();
+            },
+
+            atNow() {
+                // within a minute of now counts as "at now" -> disable forward arrow.
+                return this.range.until >= this.now() - 60;
+            },
+
+            // ---- persistence ----
+            persistRange() {
+                try { localStorage.setItem('keysat.range', JSON.stringify(this.range)); } catch (e) {}
+            },
+
+            restoreRange() {
+                let saved = null;
+                try { saved = JSON.parse(localStorage.getItem('keysat.range')); } catch (e) { saved = null; }
+                if (saved && typeof saved.since === 'number' && typeof saved.until === 'number' && saved.preset) {
+                    this.range = {
+                        preset: saved.preset,
+                        since: saved.since,
+                        until: saved.until,
+                        bucket: saved.bucket || this.computeBucket(saved.since, saved.until),
+                    };
+                    if (saved.preset === 'custom') {
+                        this.customStart = this.toDateInput(saved.since);
+                        this.customEnd = this.toDateInput(saved.until - 86400);
+                    }
+                } else {
+                    // default: last 7 days
+                    const now = this.now();
+                    const since = now - 7 * 86400;
+                    this.range = { preset: '7d', since, until: now, bucket: this.computeBucket(since, now) };
+                    this.persistRange();
+                }
+            },
+
+            // ---- date helpers (LOCAL, avoid UTC off-by-one) ----
+            toDateInput(unixSec) {
+                const d = new Date(unixSec * 1000);
+                const y = d.getFullYear();
+                const m = (d.getMonth() + 1).toString().padStart(2, '0');
+                const day = d.getDate().toString().padStart(2, '0');
+                return `${y}-${m}-${day}`;
+            },
+            dateInputToUnix(s) {
+                // parse "YYYY-MM-DD" as LOCAL midnight (not UTC).
+                const parts = (s || '').split('-');
+                if (parts.length !== 3) return 0;
+                const d = new Date(+parts[0], +parts[1] - 1, +parts[2]);
+                d.setHours(0, 0, 0, 0);
+                return Math.floor(d.getTime() / 1000);
+            },
+
+            // ---- human window label ----
+            rangeLabel() {
+                if (this.range.preset === 'all') return 'all time';
+                const fmtD = ts => new Date(ts * 1000).toLocaleDateString('en', { month: 'short', day: 'numeric' });
+                // until is exclusive; display the last covered day (until - 1s).
+                const startDay = this.toDateInput(this.range.since);
+                const endDay = this.toDateInput(this.range.until - 1);
+                if (startDay === endDay) return fmtD(this.range.since);
+                return fmtD(this.range.since) + ' – ' + fmtD(this.range.until - 1);
+            },
+
+            // ---- url builder: append range to every call ----
+            withRange(url) {
+                const sep = url.includes('?') ? '&' : '?';
+                return url + sep + 'since=' + this.range.since + '&until=' + this.range.until;
+            },
+
+            async load() {
+                switch (this.page) {
+                    case 'dashboard':
+                        [this.today, this.topApps, this.topDomains] = await Promise.all([
+                            get(this.withRange('/api/stats/summary')),
+                            get(this.withRange('/api/stats/apps?limit=5')),
+                            get(this.withRange('/api/stats/domains?limit=5')),
+                        ]);
+                        this.$nextTick(() => this.renderChart('volumeChart',
+                            this.withRange('/api/stats/volume') + '&bucket=' + this.range.bucket,
+                            'bar',
+                            d => ({ labels: this.chartLabels(d), data: d.map(e => e.words) })));
+                        break;
+                    case 'apps':
+                        this.apps = await get(this.withRange('/api/stats/apps?limit=20'));
+                        break;
+                    case 'domains':
+                        this.domains = await get(this.withRange('/api/stats/domains?limit=20'));
+                        break;
+                    case 'dirs':
+                        this.dirs = await get(this.withRange('/api/stats/dirs?limit=20'));
+                        break;
+                    case 'words':
+                        this.words = await get(this.withRange('/api/stats/words?limit=50'));
+                        // vocab respects since/until but bucket is hardcoded daily.
+                        this.$nextTick(() => this.renderChart('vocabChart',
+                            this.withRange('/api/stats/vocab') + '&bucket=86400',
+                            'line',
+                            d => ({
+                                labels: d.map(e => new Date(e.timestamp * 1000).toLocaleDateString('en', { month: 'short', day: 'numeric' })),
+                                data: d.map(e => e.total_words),
+                            })));
+                        break;
+                    case 'search':
+                        // re-run search for the (possibly) changed range.
+                        if (this.searchQ.trim() || this.searchApp.trim() || this.searchDomain.trim()) this.search();
+                        break;
+                }
+            },
+
+            // adaptive chart labels for the volume chart, based on range.bucket.
+            chartLabels(d) {
+                const multiDay = (this.range.until - this.range.since) > 86400;
+                if (this.range.bucket === 3600) {
+                    return d.map(e => {
+                        const dt = new Date(e.timestamp * 1000);
+                        const hh = dt.getHours().toString().padStart(2, '0') + ':00';
+                        return multiDay ? `${dt.getMonth() + 1}/${dt.getDate()} ${hh}` : hh;
+                    });
+                }
+                // daily bucket -> "MMM D"
+                return d.map(e => new Date(e.timestamp * 1000).toLocaleDateString('en', { month: 'short', day: 'numeric' }));
+            },
+
+            // ---- search (range-aware, paginated, debounced) ----
+            buildSearchUrl() {
+                let url = this.withRange('/api/search?q=' + encodeURIComponent(this.searchQ));
+                if (this.searchApp.trim())    url += '&app=' + encodeURIComponent(this.searchApp.trim());
+                if (this.searchDomain.trim()) url += '&domain=' + encodeURIComponent(this.searchDomain.trim());
+                url += '&limit=' + this.SEARCH_LIMIT + '&offset=' + this.searchOffset;
+                return url;
+            },
+
+            // fresh search: reset offset + results, then fetch page 0.
+            async search() {
+                this.searchOffset = 0;
+                this.searchResults = [];
+                this.searchTotal = 0;
+                if (!this.searchQ.trim()) { this.searchLoading = false; return; }
+                await this._fetchSearch(false);
+            },
+
+            async loadMore() {
+                if (this.searchLoading) return;
+                this.searchOffset += this.SEARCH_LIMIT;
+                await this._fetchSearch(true);
+            },
+
+            async _fetchSearch(append) {
+                const seq = ++this._searchSeq;
+                this.searchLoading = true;
+                const raw = await get(this.buildSearchUrl());
+                // guard the shared get() [] error fallback -> never throw on .results.
+                const pageData = Array.isArray(raw) ? { total: 0, results: [] } : (raw || { total: 0, results: [] });
+                const results = Array.isArray(pageData.results) ? pageData.results : [];
+                // ignore stale responses (debounce/typing race).
+                if (seq !== this._searchSeq) return;
+                this.searchTotal = pageData.total || 0;
+                this.searchResults = append ? this.searchResults.concat(results) : results;
+                this.searchLoading = false;
+            },
+
+            fmt(n) { return (n || 0).toLocaleString(); },
+            pct(v, max) { return max > 0 ? Math.round(v / max * 100) : 0; },
+            maxOf(arr, key) { return Math.max(...(arr || []).map(i => i[key] || 0), 0); },
+            fmtTime(ms) {
+                if (!ms) return '';
+                const d = new Date(ms);
+                return d.toLocaleDateString('en', {month:'short', day:'numeric'}) + ' ' +
+                       d.toLocaleTimeString('en', {hour:'2-digit', minute:'2-digit', hour12:false});
+            },
+
+            async renderChart(id, url, type, transform) {
+                const el = document.getElementById(id);
+                if (!el) return;
+                // destroy any prior chart first so a sparse range never leaves a stale chart.
+                if (this._charts[id]) { this._charts[id].destroy(); delete this._charts[id]; }
+                const raw = await get(url);
+                if (!Array.isArray(raw) || !raw.length) return;
+                const t = transform(raw);
+                // theme-aware colors pulled from the design-system tokens.
+                const css = getComputedStyle(document.documentElement);
+                const accent = (css.getPropertyValue('--accent') || '#0EA5E9').trim();
+                const accentSoft = (css.getPropertyValue('--accent-soft') || 'rgba(14,165,233,0.18)').trim();
+                const gridC = (css.getPropertyValue('--border') || 'rgba(128,128,128,0.15)').trim();
+                const tickC = (css.getPropertyValue('--fg-3') || '#8b95a7').trim();
+                const isBar = type === 'bar';
+                this._charts[id] = new Chart(el.getContext('2d'), {
+                    type,
+                    data: {
+                        labels: t.labels,
+                        datasets: [{
+                            data: t.data,
+                            backgroundColor: isBar ? accent : accentSoft,
+                            borderColor: accent,
+                            borderRadius: isBar ? 3 : 0,
+                            maxBarThickness: 32,
+                            fill: !isBar,
+                            tension: 0.3,
+                            pointRadius: 0,
+                            borderWidth: isBar ? 0 : 1.5,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: {
+                                grid: { color: gridC },
+                                ticks: { color: tickC, font: { family: "'Space Mono', monospace", size: 10 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 12 },
+                                border: { display: false },
+                            },
+                            y: {
+                                grid: { color: gridC },
+                                ticks: { color: tickC, font: { family: "'Space Mono', monospace", size: 10 } },
+                                border: { display: false },
+                            },
+                        },
+                    },
+                });
+            },
+        };
+    }
+    </script>
+</body>
+</html>
