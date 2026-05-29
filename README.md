@@ -100,19 +100,20 @@ Input Monitoring grant; a stable identity keeps it across rebuilds:
 make cert            # creates the "keysat-dev" code-signing identity
 ```
 
-Then run the daemon **from your terminal** so it lives inside your GUI login
-session and can attribute typing to the focused app (a plain `launchd` agent
-does not see the frontmost application, so everything ends up under the browser):
+Install it as a `launchd` agent that starts automatically at login:
 
 ```bash
-make bg              # build, sign, and run in the background
+make start-service   # build, sign, install the LaunchAgent, and start
 make logs            # tail the logs
 make stop-service    # stop
 ```
 
 Grant **Accessibility** and **Input Monitoring** to `KeySat.app` the first time
 under System Settings → Privacy & Security. Thanks to the stable identity, you
-only do this once.
+only do this once — future rebuilds keep the grant.
+
+(Prefer not to install an agent? `make bg` runs the same binary in the
+background straight from your shell.)
 
 ### Just view the dashboard
 
