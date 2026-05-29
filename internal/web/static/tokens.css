@@ -1,0 +1,178 @@
+/* ============================================================
+   Deb Design System — canonical tokens
+   Locked picks (all rounds):
+     • Surface:  Layered — page bg + a very subtly raised --surface for cards (bg < surface < surface-2)
+     • Modes:    Light (#FFFFFF) + Dark (#0A0A0A)
+     • Type:     Space Grotesk + Space Mono
+     • Radius:   Subtle — 4 / 6 / 8
+     • Elevation: Flat-first; borders carry separation
+     • Buttons:  Solid ink primary, hairline secondary
+     • Inputs:   Hairline outline
+     • Cards:    Hairline border, no shadow
+     • Badges:   Dot + label
+     • Accent:   Sky — #0EA5E9
+   ============================================================ */
+
+/* Brand fonts are vendored locally — see fonts.css (linked before this sheet). */
+
+:root,
+[data-theme="light"] {
+  /* ----- Surface (layered — subtle tonal steps: bg < surface < surface-2) ----- */
+  --bg:           #FFFFFF;   /* page */
+  --surface:      #F8FAFC;   /* cards / panels — very subtly raised off the page */
+  --surface-2:    #F2F4F7;   /* hover / chip / inline fill */
+  --backdrop:     rgba(255, 255, 255, 0.85);
+
+  /* ----- Foreground ----- */
+  --ink:          #0F1419;
+  --fg-1:         #0F1419;
+  --fg-2:         #4A5567;
+  --fg-3:         #8B95A7;
+  --fg-4:         #B8C0CC;
+
+  /* ----- Border ----- */
+  --border:        rgba(15, 20, 25, 0.10);
+  --border-strong: rgba(15, 20, 25, 0.18);
+
+  /* ----- Accent (Sky) ----- */
+  --accent:       #0EA5E9;
+  --accent-fg:    #FFFFFF;
+  --accent-soft:  rgba(14, 165, 233, 0.12);
+  --accent-hover: #0284C7;
+
+  --focus:        var(--accent);
+
+  /* ----- Semantic status ----- */
+  --success:     #2F6E4B;
+  --warning:     #B45309;
+  --danger:      #B42318;
+}
+
+[data-theme="dark"] {
+  --bg:           #0A0A0A;   /* page */
+  --surface:      #121212;   /* cards / panels — very subtly raised off the page */
+  --surface-2:    #1A1A1A;
+  --backdrop:     rgba(10, 10, 10, 0.85);
+
+  --ink:          #FAFAFA;
+  --fg-1:         #FAFAFA;
+  --fg-2:         #BFBFBF;
+  --fg-3:         #7A7A7A;
+  --fg-4:         #555555;
+
+  --border:        rgba(255, 255, 255, 0.10);
+  --border-strong: rgba(255, 255, 255, 0.18);
+
+  --accent:       #0EA5E9;
+  --accent-fg:    #FFFFFF;
+  --accent-soft:  rgba(14, 165, 233, 0.18);
+  --accent-hover: #38BDF8;
+
+  --success:     #4CAF7A;
+  --warning:     #E0A05A;
+  --danger:      #E0635A;
+}
+
+/* ============================================================
+   Type, spacing, radius, motion
+   ============================================================ */
+:root {
+  --font-sans:  'Space Grotesk', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono:  'Space Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --fs-display:  52px;
+  --fs-h1:       36px;
+  --fs-h2:       28px;
+  --fs-h3:       20px;
+  --fs-h4:       17px;
+  --fs-body:     14.5px;
+  --fs-ui:       13.5px;
+  --fs-small:    12.5px;
+  --fs-micro:    10.5px;
+
+  --lh-display:  1.0;
+  --lh-heading:  1.15;
+  --lh-body:     1.55;
+  --lh-ui:       1.4;
+
+  --tr-display: -0.03em;
+  --tr-heading: -0.025em;
+  --tr-body:     0;
+  --tr-eyebrow:  0.10em;
+
+  --fw-regular:  400;
+  --fw-medium:   500;
+  --fw-semibold: 600;
+  --fw-bold:     700;
+
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  24px;
+  --space-6:  32px;
+  --space-7:  48px;
+  --space-8:  64px;
+  --space-9:  96px;
+  --space-10: 128px;
+
+  --radius-sm:   4px;
+  --radius-md:   6px;
+  --radius-lg:   8px;
+  --radius-xl:   12px;
+  --radius-pill: 999px;
+
+  --ease-out:    cubic-bezier(0.2, 0.8, 0.2, 1);
+  --dur-fast:    140ms;
+  --dur-base:    200ms;
+  --dur-slow:    320ms;
+}
+
+/* ============================================================
+   Element defaults
+   ============================================================ */
+html, body {
+  background: var(--bg);
+  color: var(--fg-1);
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  letter-spacing: var(--tr-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out);
+}
+
+.display, h1.display {
+  font-size: var(--fs-display);
+  line-height: var(--lh-display);
+  letter-spacing: var(--tr-display);
+  font-weight: var(--fw-semibold);
+  text-wrap: balance;
+}
+
+h1 { font-size: var(--fs-h1); line-height: var(--lh-heading); letter-spacing: var(--tr-heading); font-weight: 600; }
+h2 { font-size: var(--fs-h2); line-height: var(--lh-heading); letter-spacing: var(--tr-heading); font-weight: 600; }
+h3 { font-size: var(--fs-h3); line-height: var(--lh-heading); letter-spacing: -0.02em; font-weight: 600; }
+h4 { font-size: var(--fs-h4); line-height: var(--lh-heading); letter-spacing: -0.01em; font-weight: 600; }
+
+p     { font-size: var(--fs-body);  line-height: var(--lh-body); }
+small { font-size: var(--fs-small); color: var(--fg-2); }
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); }
+
+.eyebrow {
+  font-size: var(--fs-micro);
+  letter-spacing: var(--tr-eyebrow);
+  text-transform: uppercase;
+  font-weight: var(--fw-medium);
+  color: var(--fg-3);
+}
+
+code, kbd, pre, .mono {
+  font-family: var(--font-mono);
+  font-size: 0.93em;
+}
+
+::selection { background: var(--accent); color: var(--accent-fg); }

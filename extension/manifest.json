@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "Keysat Domain Reporter",
+  "version": "1.0",
+  "description": "Reports active tab domain to Keysat daemon",
+  "permissions": ["tabs", "activeTab"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "host_permissions": ["http://127.0.0.1:7890/*"]
+}
