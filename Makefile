@@ -44,8 +44,7 @@ PLIST_DST=$(HOME)/Library/LaunchAgents/com.keysat.daemon.plist
 
 install: start-service install-hook
 
-# Run in the background from your terminal, so keysat inherits the terminal's
-# GUI session and can see the frontmost app (a plain launchd agent cannot).
+# Build and run in the background from your shell (no launchd agent).
 bg: stop-service
 	go build -tags fts5 -o $(APP_BINARY) ./cmd/keysatd
 	codesign -f -s "$(SIGN_ID)" $(APP_BUNDLE)
